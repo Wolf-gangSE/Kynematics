@@ -5,12 +5,13 @@
 -----------------------------------------------------------------------------------------
 
 local composer = require( "composer" )
+local physics = require( "physics" )
 local scene = composer.newScene()
 
 -- forward declarations and other locals
 local background, buttomLeft, buttomRight, text
 
-function onButtomLeftTouch( self, event )
+local function onButtomLeftTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then
 		-- go to page01.lua scene
 		composer.gotoScene( "scenes.pag01", "slideRight", 800 )
@@ -20,7 +21,7 @@ function onButtomLeftTouch( self, event )
 	
 end
 
-function onButtomRightTouch( self, event ) 
+local function onButtomRightTouch( self, event ) 
   if event.phase == "ended" or event.phase == "cancelled" then
     -- go to page03.lua scene
     composer.gotoScene( "scenes.pag03", "slideLeft", 800 )
@@ -31,6 +32,7 @@ end
 
 function scene:create( event )
 	local sceneGroup = self.view
+  physics.start()
 
   background = display.newImageRect( "images/background-color.png", display.contentWidth, display.contentHeight )
   background.anchorX = 0
@@ -52,10 +54,26 @@ function scene:create( event )
   text.anchorY = 0
   text.x, text.y = display.contentWidth/8, 50
 
+  plataforma01 = display.newImageRect( "images/plataforma-01.png", 580, 20 )
+  plataforma01.anchorX = 0
+  plataforma01.anchorY = 0
+  plataforma01.x, plataforma01.y = display.contentWidth/8, display.contentHeight/2
+  physics.addBody( plataforma01, "static")
+
+  plataforma02 = display.newImageRect( "images/plataforma-01.png", 580, 20 )
+  plataforma02.anchorX = 0
+  plataforma02.anchorY = 0
+  plataforma02.x, plataforma02.y = display.contentWidth/8, display.contentHeight/4
+  physics.addBody( plataforma02, "static" )
+
   sceneGroup:insert( background )
 	sceneGroup:insert( buttomRight )
 	sceneGroup:insert( buttomLeft )
   sceneGroup:insert( text )
+  sceneGroup:insert( plataforma01 )
+  sceneGroup:insert( plataforma02 )
+
+  
 end
 
 function scene:show( event )
@@ -79,11 +97,21 @@ function scene:show( event )
 end
 
 function scene:hide( event )
+  local sceneGroup = self.view
+  local phase = event.phase
 
+  if event.phase == "will" then
+    background:removeEventListener( "touch", buttomLeft )
+    background:removeEventListener( "touch", buttomRight )
+
+  elseif phase == "did" then
+    -- Called when the scene is now off screen.
+  end
+  
 end
 
 function scene:destroy( event )
-
+  physics.stop()
 end
 
 scene:addEventListener( "create", scene )

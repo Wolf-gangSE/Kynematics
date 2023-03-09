@@ -1,6 +1,6 @@
 -----------------------------------------------------------------------------------------
 --
--- pag03.lua
+-- pag02.lua
 --
 -----------------------------------------------------------------------------------------
 
@@ -8,54 +8,32 @@ local composer = require( "composer" )
 local scene = composer.newScene()
 
 -- forward declarations and other locals
-local background, buttomLeft, buttomRight, text
+local background, buttomLeft
 
 local function onButtomLeftTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then
-		-- go to page01.lua scene
-		composer.gotoScene( "scenes.pag02", "slideRight", 800 )
+		-- go to page1.lua scene
+		composer.gotoScene( "scenes.pag05", "slideRight", 800 )
 		
 		return true	-- indicates successful touch
 	end
 	
 end
 
-local function onButtomRightTouch( self, event ) 
-  if event.phase == "ended" or event.phase == "cancelled" then
-    -- go to page03.lua scene
-    composer.gotoScene( "scenes.pag04", "slideLeft", 800 )
-    
-    return true -- indicates successful touch
-  end
-end
-
 function scene:create( event )
 	local sceneGroup = self.view
-
-  background = display.newImageRect( "images/background-color.png", display.contentWidth, display.contentHeight )
-  background.anchorX = 0
-  background.anchorY = 0
-  background.x, background.y = 0, 0
-
-  buttomRight = display.newImageRect( "images/buttom-right.png", 100, 100 )
-  buttomRight.anchorX = 0
-  buttomRight.anchorY = 0
-  buttomRight.x, buttomRight.y = display.contentWidth - display.contentWidth/6,  (display.contentHeight - display.contentHeight/6)
+	background = display.newImageRect( "images/contra-capa.png", display.contentWidth, display.contentHeight )
+	background.anchorX = 0
+	background.anchorY = 0
+	background.x, background.y = 0, 0
 
 	buttomLeft = display.newImageRect( "images/buttom-left.png", 100, 100 )
 	buttomLeft.anchorX = 0
 	buttomLeft.anchorY = 0
 	buttomLeft.x, buttomLeft.y = display.contentWidth/20,  (display.contentHeight - display.contentHeight/6)
 
-  text = display.newImageRect( "images/texto-pag-03.png", display.contentWidth - display.contentWidth/4, display.contentHeight - display.contentHeight/4 )
-  text.anchorX = 0
-  text.anchorY = 0
-  text.x, text.y = display.contentWidth/8, 50
-
-  sceneGroup:insert( background )
-	sceneGroup:insert( buttomRight )
+	sceneGroup:insert( background )
 	sceneGroup:insert( buttomLeft )
-  sceneGroup:insert( text )
 end
 
 function scene:show( event )
@@ -71,9 +49,6 @@ function scene:show( event )
 		-- e.g. start timers, begin animation, play audio, etc.
 		buttomLeft.touch = onButtomLeftTouch
 		buttomLeft:addEventListener( "touch", buttomLeft )
-    
-    buttomRight.touch = onButtomRightTouch
-    buttomRight:addEventListener( "touch", buttomRight )
 	end
 
 end
@@ -81,19 +56,19 @@ end
 function scene:hide( event )
 	local sceneGroup = self.view
 	local phase = event.phase
-
 	if event.phase == "will" then
-		buttomLeft:removeEventListener( "touch", buttomLeft )
-		buttomRight:removeEventListener( "touch", buttomRight )
+		-- Called when the scene is on screen (but is about to go off screen).
+		-- 
+		-- INSERT code here to "pause" the scene.
+		-- e.g. stop timers, stop animation, stop audio, etc.
+		background:removeEventListener( "touch", buttomLeft )
 	elseif phase == "did" then
 		-- Called immediately after scene goes off screen.
-		
 	end
 
 end
 
 function scene:destroy( event )
-
 end
 
 scene:addEventListener( "create", scene )

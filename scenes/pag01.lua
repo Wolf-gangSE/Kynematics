@@ -10,7 +10,7 @@ local scene = composer.newScene()
 --------------------------------------------
 
 -- forward declaration
-local background
+local background, border, titles
 
 -- Touch listener function for background object
 local function onBackgroundTouch( self, event )
@@ -95,7 +95,6 @@ end
 
 function scene:destroy( event )
 	local sceneGroup = self.view
-	
 	-- Called prior to the removal of scene's "view" (sceneGroup)
 	-- 
 	-- INSERT code here to cleanup the scene
