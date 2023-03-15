@@ -10,11 +10,8 @@ local media = require("media")
 local audio = require("audio")
 local scene = composer.newScene()
 
-print(physics)
-
 physics.start()
 physics.setGravity( 0, 9.8 )
-physics.setDrawMode("hybrid")
 
 -- forward declarations and other locals
 local background, buttomLeft, buttomRight, text, plataforma01, plataforma02, plataforma03, lado01, lado02, bola, bolaOrientation, audioCapture, audioRecorded, recordAudioTimer, detectSoundIntensityTimer
@@ -22,6 +19,8 @@ local background, buttomLeft, buttomRight, text, plataforma01, plataforma02, pla
 local recordPath = system.pathForFile( "newRecording.wav", system.TemporaryDirectory )
 
 local i = 0
+
+local ended = false
 
 local function onButtomLeftTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then
@@ -56,6 +55,7 @@ local function onCollision(event)
     print("Colisão com linha de chegada")
     timer.cancel( recordAudioTimer )
     timer.cancel( detectSoundIntensityTimer )
+    ended = true
     bola:setLinearVelocity( 0, 0 )
   end
 end
@@ -76,9 +76,9 @@ local function detectSoundIntensity(event)
   print("soundIntensity: " .. soundIntensity)
   if soundIntensity > 0.8 then
     if bolaOrientation == "left" then
-      bola:setLinearVelocity( soundIntensity * -300, soundIntensity * 200 )
+      bola:setLinearVelocity( soundIntensity * -200, soundIntensity * 200 )
     else
-      bola:setLinearVelocity( soundIntensity * 300, soundIntensity * 200 )
+      bola:setLinearVelocity( soundIntensity * 200, soundIntensity * 200 )
     end
   end
   --os.remove( recordPath )
@@ -216,8 +216,9 @@ function scene:show( event )
     bola:addEventListener( "collision", onCollision )
 
 
-    
-    recordAudioTimer = timer.performWithDelay(2000, recordAudio, 0)
+    if (ended ~= true) then
+      recordAudioTimer = timer.performWithDelay(2000, recordAudio, 0)
+    end
     -- Configurar um temporizador para chamar a função de detecção de intensidade de som regularmente
     
 
@@ -248,7 +249,18 @@ function scene:hide( event )
     if ( detectSoundIntensityTimer ) then
       timer.cancel( detectSoundIntensityTimer )
     end
-    -- Runtime:removeEventListener( "gyroscope", onGyroscopeUpdate )
+
+    physics.removeBody( bola )
+    physics.removeBody( plataforma01 )
+    physics.removeBody( plataforma02 )
+    physics.removeBody( plataforma03 )
+    physics.removeBody( plataforma04 )
+    physics.removeBody( lado01 )
+    physics.removeBody( lado02 )
+    physics.removeBody( linhaChegada )
+
+    bola:removeEventListener( "collision", onCollision )
+
 
   elseif phase == "did" then
     -- Called when the scene is now off screen.
