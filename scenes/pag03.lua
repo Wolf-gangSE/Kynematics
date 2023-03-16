@@ -15,7 +15,7 @@ physics.setDrawMode( "hybrid" )
 
 
 -- forward declarations and other locals
-local background, buttomLeft, buttomRight, text, rect1, estrada, carro, restart, personagem, carroMovimento, personagemMovimento
+local background, buttomLeft, buttomRight, text, rect1, estrada, carro, restart, personagem, carroMovimento, personagemMovimento, ended
 
 local velocidade = 5000
 
@@ -39,6 +39,10 @@ local function onButtomRightTouch( self, event )
 end
 
 local function onCarroTap()
+	if personagemMovimento or carroMovimento or ended then
+		return
+	end
+
 	transition.to(carro, {x = 500, time = velocidade})
 	transition.to(movimentoCarro, {x = 510, time = velocidade})
 	transition.to(repousoCarro, {x = 510, time = velocidade})
@@ -47,10 +51,14 @@ local function onCarroTap()
 		restart.alpha = 1
 		carroMovimento = false
 	end, 1 )
+	ended = true
 	
 end
 
 local function onPersonagemTap()
+	if personagemMovimento or carroMovimento or ended then
+		return
+	end
 	transition.to(personagem, {x = 575, time = velocidade})
 	transition.to(movimentoPersonagem, {x = 555, time = velocidade})
 	transition.to(repousoPersonagem, {x = 555, time = velocidade})
@@ -59,6 +67,7 @@ local function onPersonagemTap()
 		restart.alpha = 1
 		personagemMovimento = false
 	end, 1 )
+	ended = true
 	
 end
 
@@ -70,30 +79,31 @@ local function onRestartTap()
 	transition.to(repousoPersonagem, {x = display.contentWidth/8 - 20, time = velocidade/2})
 	transition.to(repousoCarro, {x = display.contentWidth/8 + 10, time = velocidade/2})
 	restart.alpha = 0
+	ended = false
 end
 
 local function onEnterFrame()
-	if carroMovimento == true and personagemMovimento == true then
-		movimentoCarro.alpha = 0
-		movimentoPersonagem.alpha = 0
-		repousoCarro.alpha = 1
-		repousoPersonagem.alpha = 1
+	-- if carroMovimento == true and personagemMovimento == true then
+	-- 	movimentoCarro.alpha = 0
+	-- 	movimentoPersonagem.alpha = 0
+	-- 	repousoCarro.alpha = 1
+	-- 	repousoPersonagem.alpha = 1
+	-- else
+	if carroMovimento == true then
+		movimentoCarro.alpha = 1
+		repousoCarro.alpha = 0
 	else
-		if carroMovimento == true then
-			movimentoCarro.alpha = 1
-			repousoCarro.alpha = 0
-		else
-			movimentoCarro.alpha = 0
-			repousoCarro.alpha = 1
-		end
-		if personagemMovimento == true then
-			movimentoPersonagem.alpha = 1
-			repousoPersonagem.alpha = 0
-		else
-			movimentoPersonagem.alpha = 0
-			repousoPersonagem.alpha = 1
-		end
+		movimentoCarro.alpha = 0
+		repousoCarro.alpha = 1
 	end
+	if personagemMovimento == true then
+		movimentoPersonagem.alpha = 1
+		repousoPersonagem.alpha = 0
+	else
+		movimentoPersonagem.alpha = 0
+		repousoPersonagem.alpha = 1
+	end
+	-- end
 end
 
 
@@ -126,32 +136,28 @@ function scene:create( event )
 	rect1.anchorY = 0
 	rect1.x, rect1.y = display.contentWidth/8, display.contentHeight - display.contentHeight/1.85
 	rect1.alpha = 0
-	physics.addBody( rect1, "static" )
 
 	rect2 = display.newRect( 0, 0, 580, 10 )
 	rect2.anchorX = 0
 	rect2.anchorY = 0
 	rect2.x, rect2.y = display.contentWidth/8, display.contentHeight - display.contentHeight/1.52
 	rect2.alpha = 0
-	physics.addBody( rect2, "static" )
 
 	estrada = display.newImageRect( "images/estrada.png", 580, 130 )
 	estrada.anchorX = 0
 	estrada.anchorY = 0
 	estrada.x, estrada.y = display.contentWidth/8, display.contentHeight - display.contentHeight/1.52
 
-	carro = display.newImageRect( "images/carro-sem-fundo.png", 175, 100 )
+	carro = display.newImageRect( "images/carro-sem-fundo.png", 180, 100 )
 	carro.anchorX = 0
 	carro.anchorY = 0
-	carro.x, carro.y = display.contentWidth/8, display.contentHeight - display.contentHeight/1.62
-	physics.addBody( carro, "dynamic")
+	carro.x, carro.y = display.contentWidth/8, display.contentHeight - display.contentHeight/1.55
 	carroMovimento = false
 
 	personagem = display.newImageRect( "images/bicicleta.png", 100, 100 )
 	personagem.anchorX = 0
 	personagem.anchorY = 0
 	personagem.x, personagem.y = display.contentWidth/8, display.contentHeight - display.contentHeight/1.32
-	physics.addBody( personagem, "dynamic")
 	personagemMovimento = false
 
 	restart = display.newImageRect( "images/restart.png", 100, 100 )
@@ -211,6 +217,12 @@ function scene:show( event )
 		-- 
 		-- INSERT code here to make the scene come alive.
 		-- e.g. start timers, begin animation, play audio, etc.
+		
+		physics.addBody( rect1, "static" )
+		physics.addBody( rect2, "static" )
+		physics.addBody( carro, "dynamic")
+		physics.addBody( personagem, "dynamic")
+
 		buttomLeft.touch = onButtomLeftTouch
 		buttomLeft:addEventListener( "touch", buttomLeft )
     
