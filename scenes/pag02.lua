@@ -11,6 +11,7 @@ local audio = require("audio")
 local scene = composer.newScene()
 
 physics.start()
+physics.setDrawMode( "normal" )
 physics.setGravity( 0, 9.8 )
 
 -- forward declarations and other locals
@@ -132,51 +133,43 @@ function scene:create( event )
   plataforma01.anchorX = 0
   plataforma01.anchorY = 0
   plataforma01.x, plataforma01.y = display.contentWidth/8, display.contentHeight/2
-  physics.addBody( plataforma01, "static")
+  
 
   plataforma02 = display.newImageRect( "images/plataforma-01.png", 580, 20 )
   plataforma02.anchorX = 0
   plataforma02.anchorY = 0
   plataforma02.x, plataforma02.y = display.contentWidth/8, display.contentHeight/5
-  physics.addBody( plataforma02, "static" )
+  
 
   plataforma03 = display.newImageRect( "images/plataforma-01.png", 350, 20 )
   plataforma03.anchorX = 0
   plataforma03.anchorY = 0
   plataforma03.x, plataforma03.y = display.contentWidth/8, display.contentHeight/3.5
-  physics.addBody( plataforma03, "static" )
 
   plataforma04 = display.newImageRect( "images/plataforma-01.png", 350, 20 )
   plataforma04.anchorX = 0
   plataforma04.anchorY = 0
   plataforma04.x, plataforma04.y = display.contentWidth/2.5, display.contentHeight/2.7
-  physics.addBody( plataforma04, "static" )
 
   linhaChegada = display.newImageRect( "images/fine-line.png", 100, 21 )
   linhaChegada.anchorX = 0
   linhaChegada.anchorY = 0
   linhaChegada.x, linhaChegada.y =  display.contentWidth - display.contentWidth/8 - 115, display.contentHeight/2
-  physics.addBody( linhaChegada, "static", { isSensor = true })
 
   lado01 = display.newImageRect( "images/plataforma-02.png", 20, 300 )
   lado01.anchorX = 0
   lado01.anchorY = 0
   lado01.x, lado01.y = display.contentWidth/8, display.contentHeight/4.6
-  physics.addBody( lado01, "static")
-  physics.addBody( lado01, "static", { isSensor = true })
 
   lado02 = display.newImageRect( "images/plataforma-02.png", 20, 300 )
   lado02.anchorX = 0
   lado02.anchorY = 0
   lado02.x, lado02.y = display.contentWidth/1.17, display.contentHeight/4.6
-  physics.addBody( lado02, "static")
-  physics.addBody( lado02, "static", { isSensor = true })
 
   bola = display.newImageRect( "images/bola.png", 50, 50 )
   bola.anchorX = 0
   bola.anchorY = 0
-  bola.x, bola.y = display.contentWidth/6, display.contentHeight/5
-  physics.addBody( bola, "dynamic", { radius=25, density=1.0, friction=0.3, bounce=0.3 } )
+  bola.x, bola.y = display.contentWidth/6, display.contentHeight/4.5
   bolaOrientation = "right"
 
   
@@ -207,6 +200,19 @@ function scene:show( event )
 		-- 
 		-- INSERT code here to make the scene come alive.
 		-- e.g. start timers, begin animation, play audio, etc.
+
+    physics.addBody( plataforma01, "static")
+    physics.addBody( plataforma02, "static" )
+    physics.addBody( plataforma03, "static" )
+    physics.addBody( plataforma04, "static" )
+    physics.addBody( lado01, "static")
+    physics.addBody( lado01, "static", { isSensor = true })
+    physics.addBody( lado02, "static")
+    physics.addBody( lado02, "static", { isSensor = true })
+    physics.addBody( bola, "dynamic", { radius=25, density=1.0, friction=0.3, bounce=0.3 } )
+    physics.addBody( linhaChegada, "static", { isSensor = true })
+
+
 		buttomLeft.touch = onButtomLeftTouch
 		buttomLeft:addEventListener( "touch", buttomLeft )
 
@@ -214,6 +220,8 @@ function scene:show( event )
     buttomRight:addEventListener( "touch", buttomRight )
 
     bola:addEventListener( "collision", onCollision )
+
+    
 
 
     if (ended ~= true) then
