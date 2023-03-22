@@ -8,7 +8,7 @@ local composer = require( "composer" )
 local scene = composer.newScene()
 
 -- forward declarations and other locals
-local background, buttomLeft, buttomRight, text
+local background, buttomLeft, buttomRight, text, estrada, carro, retangulo, velocidade_text, velocidade, posicao_anterior, tempo_anterior
 
 local function onButtomLeftTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then
@@ -28,6 +28,38 @@ local function onButtomRightTouch( self, event )
     return true -- indicates successful touch
   end
 end
+
+local function onCarTouch(event)
+	local estradaLeft = estrada.x
+	local estradaRight = estrada.x + estrada.width
+	local carroLeft = event.x - carro.width/2
+	local carroRight = event.x + carro.width/2
+  if event.phase == "moved" then
+		if carroLeft >= estradaLeft and carroRight <= estradaRight then
+    	carro.x = event.x - carro.width/2
+			-- calcular a distância percorrida
+			local distancia = math.abs(carro.x - posicao_anterior)
+
+			-- calcular o tempo decorrido
+			local tempo = event.time - tempo_anterior
+
+			-- calcular a velocidade
+			velocidade = distancia / tempo
+
+			-- atualizar a posição e o tempo anterior
+			posicao_anterior = carro.x
+			tempo_anterior = event.time
+
+			-- atualizar o texto da velocidade
+			velocidade_text.text = "Velocidade: " .. string.format("%.2f", velocidade) .. " m/s"
+		end
+	elseif event.phase == "began" then
+    -- inicializar a posição e o tempo anterior
+    posicao_anterior = carro.x
+    tempo_anterior = event.time
+  end
+end
+
 
 function scene:create( event )
 	local sceneGroup = self.view
@@ -52,10 +84,34 @@ function scene:create( event )
   text.anchorY = 0
   text.x, text.y = display.contentWidth/8, 50
 
+	estrada = display.newImageRect( "images/estrada.png", 580, 100 )
+	estrada.anchorX = 0
+	estrada.anchorY = 0
+	estrada.x, estrada.y = display.contentWidth/8, display.contentHeight - display.contentHeight/1.35
+
+	carro = display.newImageRect( "images/carro-sem-fundo.png", 90, 50 )
+	carro.anchorX = 0
+	carro.anchorY = 0
+	carro.x, carro.y = display.contentWidth/8, display.contentHeight - display.contentHeight/1.38
+
+	retangulo = display.newImageRect("images/retangulo.png", 300, 50)
+	retangulo.anchorX = 0
+	retangulo.anchorY = 0
+	retangulo.x, retangulo.y = display.contentWidth / 2 - retangulo.width / 2, (display.contentHeight / 2.5)
+
+	velocidade_text = display.newText("Velocidade: 0 m", retangulo.x + retangulo.width / 2,
+	retangulo.y + retangulo.height / 2, native.systemFont, 25)
+	velocidade_text:setFillColor(0, 0, 0)
+
+
   sceneGroup:insert( background )
 	sceneGroup:insert( buttomRight )
 	sceneGroup:insert( buttomLeft )
   sceneGroup:insert( text )
+	sceneGroup:insert( estrada )
+	sceneGroup:insert( carro )
+	sceneGroup:insert( retangulo )
+	sceneGroup:insert( velocidade_text )
 end
 
 function scene:show( event )
@@ -74,6 +130,10 @@ function scene:show( event )
     
     buttomRight.touch = onButtomRightTouch
     buttomRight:addEventListener( "touch", buttomRight )
+
+
+		carro:addEventListener("touch", onCarTouch)
+
 	end
 
 end
@@ -85,6 +145,7 @@ function scene:hide( event )
 	if event.phase == "will" then
 		buttomLeft:removeEventListener( "touch", buttomLeft )
 		buttomRight:removeEventListener( "touch", buttomRight )
+		carro:removeEventListener( "touch", carro )
 	elseif phase == "did" then
 		-- Called immediately after scene goes off screen.
 		
