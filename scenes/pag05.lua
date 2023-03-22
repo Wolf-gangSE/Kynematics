@@ -8,7 +8,46 @@ local composer = require("composer")
 local scene = composer.newScene()
 
 -- forward declarations and other locals
-local background, buttomLeft, buttomRight, text, setaDireita, setaEsquerda, retangulo, posicaoAtual, plataforma, posicaoFinal, deslocamento_text, ponto_inicial, ponto_final, personagem, posicaoInicial, deslocamento
+local background, buttomLeft, buttomRight, text, setaDireita, setaEsquerda, retangulo, posicaoAtual, plataforma, posicaoFinal, deslocamento_text, ponto_inicial, ponto_final, personagem, posicaoInicial, deslocamento, personagem_sheet
+
+local sheetOptions =
+{
+	frames =
+	{
+			{   -- frame 1
+					x = 0,
+					y = 0,
+					width = 150,
+					height = 250
+			},
+			{   -- frame 2
+					x = 150,
+					y = 0,
+					width = 140,
+					height = 250
+			},
+			{
+					x = 290,
+					y = 0,
+					width = 110,
+					height = 250
+			}
+
+	}
+}
+
+-- sequences table
+local sequences = 
+{
+	{
+			name = "fastRun",
+			frames = { 3,2,1 },
+			time = 400,
+			loopCount = 0,
+			loopDirection = "forward"
+	},
+
+}
 
 local function onButtomLeftTouch(self, event)
 	if event.phase == "ended" or event.phase == "cancelled" then
@@ -29,10 +68,14 @@ local function onButtomRightTouch(self, event)
 end
 
 local function onSetaDireitaTouch(event)
-	if (event.phase == "began") then
+	if (event.phase == "began") and posicaoAtual + 8 < 100 then
 		-- Começa a mover o personagem para a direita
 		personagem.direction = "direita"
 		personagem.isMoving = true
+		if posicaoAtual ~= 0 or posicaoAtual ~= 100 then
+			print("posicao atual dir: " .. posicaoAtual)
+			personagem.x = plataforma.x + posicaoAtual * 6 - personagem.width/4
+		end
 	elseif (event.phase == "ended" or event.phase == "cancelled") then
 		-- Para de mover o personagem
 		personagem.isMoving = false
@@ -40,15 +83,19 @@ local function onSetaDireitaTouch(event)
 		deslocamento = math.abs(posicaoFinal - posicaoInicial + 8)
 		deslocamento_text.text = "Deslocamento: " .. deslocamento .. " m"
 		posicaoInicial = posicaoFinal
+		personagem:pause()
 	end
 end
 
 local function onSetaEsquerdaTouch(event)
-	print(personagem.x)
-	if (event.phase == "began") then
+	if (event.phase == "began") and posicaoAtual > 0 then
 		-- Começa a mover o personagem para a esquerda
 		personagem.direction = "esquerda"
 		personagem.isMoving = true
+		if posicaoAtual ~= 0 or posicaoAtual ~= 100 then
+			print("posicao atual esq: " .. posicaoAtual)
+			personagem.x = plataforma.x + posicaoAtual * 6 + personagem.width/2
+		end
 	elseif (event.phase == "ended" or event.phase == "cancelled") then
 		-- Para de mover o personagem
 		personagem.isMoving = false
@@ -56,18 +103,21 @@ local function onSetaEsquerdaTouch(event)
 		deslocamento = math.abs(posicaoFinal - posicaoInicial - 8)
 		deslocamento_text.text = "Deslocamento: " .. deslocamento .. " m"
 		posicaoInicial = posicaoFinal
+		personagem:pause()
 	end
 end
 
 local function movePersonagem()
-	print(posicaoAtual)
 	if (personagem.isMoving) then
+		personagem:play()
 		if (personagem.direction == "direita") and posicaoAtual + 8 < 100 then
 			personagem.x = personagem.x + 6 -- ou qualquer outra velocidade desejada
 			posicaoAtual = posicaoAtual + 1
+			personagem.xScale = 0.5
 		elseif (personagem.direction == "esquerda") and posicaoAtual > 0 then
 			personagem.x = personagem.x - 6 -- ou qualquer outra velocidade desejada
 			posicaoAtual = posicaoAtual - 1
+			personagem.xScale = -0.5
 		end
 	end
 end
@@ -128,10 +178,13 @@ function scene:create(event)
 	setaEsquerda.x, setaEsquerda.y = display.contentWidth / 2 - retangulo.width / 2 - setaEsquerda.width - 40,
 	(display.contentHeight / 2.5)
 
-	personagem = display.newImageRect("images/personagem.png", 75, 115)
+	personagem_sheet = graphics.newImageSheet( "images/personagem-andando.png", sheetOptions )
+	personagem = display.newSprite( personagem_sheet, sequences )
+	personagem.xScale = 0.5
+	personagem.yScale = 0.5
 	personagem.anchorX = 0
 	personagem.anchorY = 0
-	personagem.x, personagem.y = plataforma.x, (plataforma.y - personagem.height)
+	personagem.x, personagem.y = plataforma.x, (plataforma.y - personagem.height/2)
 
 	posicaoInicial = 0
 	posicaoAtual = 0
