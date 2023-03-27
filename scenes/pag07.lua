@@ -186,13 +186,14 @@ function scene:show( event )
 
 	if phase == "will" then
 		-- Called when the scene is still off screen (but is about to come on screen).
+		bola.x, bola.y = plataforma01.x+20, plataforma01.y - bola.height
 	elseif phase == "did" then
 		-- Called when the scene is now on screen.
 		-- 
 
 		-- INSERT code here to make the scene come alive.
 		-- e.g. start timers, begin animation, play audio, etc.
-		bola.x, bola.y = plataforma01.x+20, plataforma01.y - bola.height
+		
 		buttomLeft.touch = onButtomLeftTouch
 		buttomLeft:addEventListener( "touch", buttomLeft )
     
@@ -208,8 +209,8 @@ function scene:show( event )
 		physics.addBody( lado02, "static", { isSensor = true })
 
 		timer.performWithDelay( 1000, function() 
-			bola:setLinearVelocity( 100, 0 )
-			velocidadeInicial = 100
+			bola:setLinearVelocity( 10, 0 )
+			velocidadeInicial = 10
 			velocidadeFinal = 0
 			tempoInicial = system.getTimer()/1000
 		end, 1 )
