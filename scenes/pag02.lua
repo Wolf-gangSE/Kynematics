@@ -11,17 +11,14 @@ local audio = require("audio")
 local scene = composer.newScene()
 
 physics.start()
-physics.setDrawMode( "normal" )
 physics.setGravity( 0, 9.8 )
 
 -- forward declarations and other locals
 local background, buttomLeft, buttomRight, text, plataforma01, plataforma02, plataforma03, lado01, lado02, bola, bolaOrientation, audioCapture, audioRecorded, recordAudioTimer, detectSoundIntensityTimer
 
-local recordPath = system.pathForFile( "newRecording.wav", system.TemporaryDirectory )
+--local recordPath = system.pathForFile( "newRecording.wav", system.TemporaryDirectory )
 
 local i = 0
-
-local ended = false
 
 local function onButtomLeftTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then
@@ -54,55 +51,29 @@ local function onCollision(event)
   elseif event.phase == "began" and event.other == linhaChegada then
     -- bola colidiu com a linha de chegada
     print("Colisão com linha de chegada")
-    timer.cancel( recordAudioTimer )
-    timer.cancel( detectSoundIntensityTimer )
-    ended = true
     bola:setLinearVelocity( 0, 0 )
   end
 end
 
--- local function onGyroscopeUpdate( event )
---   local xSpeed = event.yRotation * 500
---   local ySpeed = event.xRotation * 500
-
---   bola:setLinearVelocity( xSpeed, ySpeed )
--- end
-
-
-
--- Função para detectar a intensidade do som
-local function detectSoundIntensity(event)
-  audioRecorded = audio.loadSound( "newRecording" .. i .. ".wav", system.TemporaryDirectory )
-  local soundIntensity = audio.getVolume( audioRecorded )
-  print("soundIntensity: " .. soundIntensity)
-  if soundIntensity > 0.8 then
-    if bolaOrientation == "left" then
-      bola:setLinearVelocity( soundIntensity * -200, soundIntensity * 200 )
-    else
-      bola:setLinearVelocity( soundIntensity * 200, soundIntensity * 200 )
-    end
+local function onGyroscopeUpdate( event )
+  -- Usar os valores do sensor do giroscópio para alterar a velocidade da bola
+  local x = event.yRotation * event.deltaTime
+  local y = event.xRotation * event.deltaTime
+  if bola then
+    bola:setLinearVelocity( x * 100, y * 100 )
   end
-  --os.remove( recordPath )
 end
 
-local function recordAudio(event)
-  i = i + 1
-  print("recordAudio")
-  -- Iniciar a captura de áudio
-  audioCapture = media.newRecording( system.pathForFile( "newRecording" .. i .. ".wav", system.TemporaryDirectory ) )
-
-  -- Iniciar a captura de áudio
-  audioCapture:startRecording()
-
-  
-
-  -- stop recording audio after seconds
-  detectSoundIntensityTimer = timer.performWithDelay(1000, function()
-    audioCapture:stopRecording() -- stop the recording
-    print("stopRecording")
-    detectSoundIntensity()
-  end)
-
+local function onAccelerometerUpdate( event )
+  if bola then
+    local vx, vy = bola:getLinearVelocity()
+    local xGravity = event.xGravity
+    local yGravity = event.yGravity
+    local speedMultiplier = 3 -- adjust this value to control the speed of the ball
+    local velocidadeX = vx + xGravity * speedMultiplier
+    local velocidadeY = vy + yGravity * speedMultiplier
+    bola:setLinearVelocity( velocidadeX, velocidadeY )
+  end
 end
 
 function scene:create( event )
@@ -124,7 +95,7 @@ function scene:create( event )
 	buttomLeft.anchorY = 0
 	buttomLeft.x, buttomLeft.y = display.contentWidth/20,  (display.contentHeight - display.contentHeight/6)
 
-  text = display.newImageRect( "images/texto-pag-02.png", display.contentWidth - display.contentWidth/4, display.contentHeight - display.contentHeight/4 )
+  text = display.newImageRect( "images/texto-pag-02-1.png", display.contentWidth - display.contentWidth/4, display.contentHeight - display.contentHeight/4 )
   text.anchorX = 0
   text.anchorY = 0
   text.x, text.y = display.contentWidth/8, 50
@@ -141,20 +112,25 @@ function scene:create( event )
   plataforma02.x, plataforma02.y = display.contentWidth/8, display.contentHeight/5
   
 
-  plataforma03 = display.newImageRect( "images/plataforma-01.png", 350, 20 )
+  plataforma03 = display.newImageRect( "images/plataforma-01.png", 450, 20 )
   plataforma03.anchorX = 0
   plataforma03.anchorY = 0
-  plataforma03.x, plataforma03.y = display.contentWidth/8, display.contentHeight/3.5
+  plataforma03.x, plataforma03.y = display.contentWidth/8, display.contentHeight/3.7
 
-  plataforma04 = display.newImageRect( "images/plataforma-01.png", 350, 20 )
+  plataforma04 = display.newImageRect( "images/plataforma-01.png", 450, 20 )
   plataforma04.anchorX = 0
   plataforma04.anchorY = 0
-  plataforma04.x, plataforma04.y = display.contentWidth/2.5, display.contentHeight/2.7
+  plataforma04.x, plataforma04.y = display.contentWidth/3.5, display.contentHeight/2.9
+
+  plataforma05 = display.newImageRect( "images/plataforma-01.png", 450, 20 )
+  plataforma05.anchorX = 0
+  plataforma05.anchorY = 0
+  plataforma05.x, plataforma05.y = display.contentWidth/8, display.contentHeight/2.4
 
   linhaChegada = display.newImageRect( "images/fine-line.png", 100, 21 )
   linhaChegada.anchorX = 0
   linhaChegada.anchorY = 0
-  linhaChegada.x, linhaChegada.y =  display.contentWidth - display.contentWidth/8 - 115, display.contentHeight/2
+  linhaChegada.x, linhaChegada.y =  display.contentWidth/8 + 20, display.contentHeight/2
 
   lado01 = display.newImageRect( "images/plataforma-02.png", 20, 300 )
   lado01.anchorX = 0
@@ -166,7 +142,7 @@ function scene:create( event )
   lado02.anchorY = 0
   lado02.x, lado02.y = display.contentWidth/1.17, display.contentHeight/4.6
 
-  bola = display.newImageRect( "images/bola.png", 50, 50 )
+  bola = display.newImageRect( "images/bola.png", 40, 40 )
   bola.anchorX = 0
   bola.anchorY = 0
   bola.x, bola.y = display.contentWidth/6, display.contentHeight/4.5
@@ -182,6 +158,7 @@ function scene:create( event )
   sceneGroup:insert( plataforma02 )
   sceneGroup:insert( plataforma03 )
   sceneGroup:insert( plataforma04 )
+  sceneGroup:insert( plataforma05 )
   sceneGroup:insert( lado01 )
   sceneGroup:insert( lado02 )
   sceneGroup:insert( bola )
@@ -200,11 +177,13 @@ function scene:show( event )
 		-- 
 		-- INSERT code here to make the scene come alive.
 		-- e.g. start timers, begin animation, play audio, etc.
+    bola.x, bola.y = display.contentWidth/6, display.contentHeight/4.2
 
     physics.addBody( plataforma01, "static")
     physics.addBody( plataforma02, "static" )
     physics.addBody( plataforma03, "static" )
     physics.addBody( plataforma04, "static" )
+    physics.addBody( plataforma05, "static" )
     physics.addBody( lado01, "static")
     physics.addBody( lado01, "static", { isSensor = true })
     physics.addBody( lado02, "static")
@@ -221,12 +200,7 @@ function scene:show( event )
 
     bola:addEventListener( "collision", onCollision )
 
-    
-
-
-    if (ended ~= true) then
-      recordAudioTimer = timer.performWithDelay(2000, recordAudio, 0)
-    end
+  
     -- Configurar um temporizador para chamar a função de detecção de intensidade de som regularmente
     
 
@@ -238,6 +212,14 @@ function scene:show( event )
     --   print( "Gyroscope is not supported on this platform.")
 
     -- end
+
+    if system.hasEventSource( "accelerometer" ) then
+      print( "Accelerometer is supported on this platform.")
+      Runtime:addEventListener( "accelerometer", onAccelerometerUpdate )
+    else
+      print( "Accelerometer is not supported on this platform.")
+
+    end
     
 	end
 
@@ -250,24 +232,20 @@ function scene:hide( event )
   if event.phase == "will" then
     background:removeEventListener( "touch", buttomLeft )
     background:removeEventListener( "touch", buttomRight )
-    if ( recordAudioTimer ) then
-      timer.cancel( recordAudioTimer )
-    end
-
-    if ( detectSoundIntensityTimer ) then
-      timer.cancel( detectSoundIntensityTimer )
-    end
 
     physics.removeBody( bola )
     physics.removeBody( plataforma01 )
     physics.removeBody( plataforma02 )
     physics.removeBody( plataforma03 )
     physics.removeBody( plataforma04 )
+    physics.removeBody( plataforma05 )
     physics.removeBody( lado01 )
     physics.removeBody( lado02 )
     physics.removeBody( linhaChegada )
 
     bola:removeEventListener( "collision", onCollision )
+    Runtime:removeEventListener( "gyroscope", onGyroscopeUpdate )
+    Runtime:removeEventListener( "accelerometer", onAccelerometerUpdate )
 
 
   elseif phase == "did" then
