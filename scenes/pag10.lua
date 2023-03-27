@@ -13,7 +13,7 @@ local background, buttomLeft
 local function onButtomLeftTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then
 		-- go to page1.lua scene
-		composer.gotoScene( "scenes.pag05", "slideRight", 800 )
+		composer.gotoScene( "scenes.pag09", "slideRight", 800 )
 		
 		return true	-- indicates successful touch
 	end
