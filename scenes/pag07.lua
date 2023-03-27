@@ -15,7 +15,6 @@ local aceleracoes = {0}
 
 physics.start()
 physics.setGravity( 0, 9.8 )
-physics.setDrawMode( "hybrid" )
 
 local function onButtomLeftTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then

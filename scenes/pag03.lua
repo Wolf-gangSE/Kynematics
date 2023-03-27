@@ -11,8 +11,6 @@ local scene = composer.newScene()
 
 physics.start()
 physics.setGravity( 0, 9.8 )
-physics.setDrawMode( "hybrid" )
-
 
 -- forward declarations and other locals
 local background, buttomLeft, buttomRight, text, rect1, estrada, carro, restart, personagem, carroMovimento, personagemMovimento, ended
