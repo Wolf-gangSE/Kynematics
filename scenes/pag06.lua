@@ -8,7 +8,7 @@ local composer = require( "composer" )
 local scene = composer.newScene()
 
 -- forward declarations and other locals
-local background, buttomLeft, buttomRight, text, estrada, carro, retangulo, velocidade_text, velocidade, posicao_anterior, tempo_anterior
+local background, buttomLeft, buttomRight, text, estrada, carro, retangulo, velocidade_text, velocidade, posicao_anterior, tempo_anterior, posicaoInicial, posicaoFinal, tempoInicial, tempoFinal, retangulo2, velocidade_text2
 
 local function onButtomLeftTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then
@@ -38,26 +38,41 @@ local function onCarTouch(event)
 		if carroLeft >= estradaLeft and carroRight <= estradaRight then
     	carro.x = event.x - carro.width/2
 			-- calcular a distância percorrida
-			local distancia = math.abs(carro.x - posicao_anterior)
+			local distancia = math.abs(carro.x/50 - posicao_anterior)
+
+			posicaoFinal = posicaoFinal + distancia
 
 			-- calcular o tempo decorrido
-			local tempo = event.time - tempo_anterior
+			local tempo = (event.time - tempo_anterior)/1000
+
+			tempoFinal = tempoFinal + tempo
 
 			-- calcular a velocidade
 			velocidade = distancia / tempo
 
 			-- atualizar a posição e o tempo anterior
-			posicao_anterior = carro.x
+			posicao_anterior = carro.x/50
 			tempo_anterior = event.time
 
-			-- atualizar o texto da velocidade
-			velocidade_text.text = "Velocidade: " .. string.format("%.2f", velocidade) .. " m/s"
 		end
 	elseif event.phase == "began" then
     -- inicializar a posição e o tempo anterior
-    posicao_anterior = carro.x
+    posicao_anterior = carro.x/50
     tempo_anterior = event.time
-  end
+		tempoInicial = event.time
+		tempoFinal = 0
+		posicaoInicial = carro.x/50
+		posicaoFinal  = 0
+	elseif event.phase == "ended" then
+		-- calcular velocidade média
+		tempoFinal = event.time
+		local tempoTotal = (tempoFinal - tempoInicial)/1000
+		print("tempoTotal: " .. tempoTotal)
+		print("posicaoFinal: " .. posicaoFinal)
+		print("posicaoInicial: " .. posicaoInicial)
+		local velocidadeMedia = (posicaoFinal - posicaoInicial) / tempoTotal
+		velocidade_text2.text = "Velocidade média: " .. string.format("%.2f", math.abs(velocidadeMedia)) .. " m/s"
+	end
 end
 
 
@@ -84,24 +99,33 @@ function scene:create( event )
   text.anchorY = 0
   text.x, text.y = display.contentWidth/8, 50
 
-	estrada = display.newImageRect( "images/estrada.png", 580, 100 )
+	estrada = display.newImageRect( "images/estrada.png", 590, 100 )
 	estrada.anchorX = 0
 	estrada.anchorY = 0
 	estrada.x, estrada.y = display.contentWidth/8, display.contentHeight - display.contentHeight/1.35
 
-	carro = display.newImageRect( "images/carro-sem-fundo.png", 90, 50 )
+	carro = display.newImageRect( "images/carro-sem-fundo.png", 120, 75 )
 	carro.anchorX = 0
 	carro.anchorY = 0
 	carro.x, carro.y = display.contentWidth/8, display.contentHeight - display.contentHeight/1.38
 
-	retangulo = display.newImageRect("images/retangulo.png", 300, 50)
-	retangulo.anchorX = 0
-	retangulo.anchorY = 0
-	retangulo.x, retangulo.y = display.contentWidth / 2 - retangulo.width / 2, (display.contentHeight / 2.5)
+	-- retangulo = display.newImageRect("images/retangulo.png", 300, 50)
+	-- retangulo.anchorX = 0
+	-- retangulo.anchorY = 0
+	-- retangulo.x, retangulo.y = display.contentWidth / 2 - retangulo.width / 2, (display.contentHeight / 2.6)
 
-	velocidade_text = display.newText("Velocidade: 0 m", retangulo.x + retangulo.width / 2,
-	retangulo.y + retangulo.height / 2, native.systemFont, 25)
-	velocidade_text:setFillColor(0, 0, 0)
+	-- velocidade_text = display.newText("Velocidade: 0 m/s", retangulo.x + retangulo.width / 2,
+	-- retangulo.y + retangulo.height / 2, native.systemFont, 22)
+	-- velocidade_text:setFillColor(0, 0, 0)
+
+	retangulo2 = display.newImageRect("images/retangulo.png", 300, 50)
+	retangulo2.anchorX = 0
+	retangulo2.anchorY = 0
+	retangulo2.x, retangulo2.y = display.contentWidth / 2 - retangulo2.width / 2, (display.contentHeight / 2.5)
+
+	velocidade_text2 = display.newText("Velocidade média: 0 m/s", retangulo2.x + retangulo2.width / 2, retangulo2.y + retangulo2.height / 2, native.systemFont, 22)
+	velocidade_text2:setFillColor(0, 0, 0)
+
 
 
   sceneGroup:insert( background )
@@ -110,8 +134,10 @@ function scene:create( event )
   sceneGroup:insert( text )
 	sceneGroup:insert( estrada )
 	sceneGroup:insert( carro )
-	sceneGroup:insert( retangulo )
-	sceneGroup:insert( velocidade_text )
+	-- sceneGroup:insert( retangulo )
+	-- sceneGroup:insert( velocidade_text )
+	sceneGroup:insert( retangulo2 )
+	sceneGroup:insert( velocidade_text2 )
 end
 
 function scene:show( event )
@@ -145,7 +171,7 @@ function scene:hide( event )
 	if event.phase == "will" then
 		buttomLeft:removeEventListener( "touch", buttomLeft )
 		buttomRight:removeEventListener( "touch", buttomRight )
-		carro:removeEventListener( "touch", carro )
+		carro:removeEventListener( "touch", onCarTouch )
 	elseif phase == "did" then
 		-- Called immediately after scene goes off screen.
 		
