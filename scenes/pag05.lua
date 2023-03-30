@@ -80,8 +80,8 @@ local function onSetaDireitaTouch(event)
 		-- Para de mover o personagem
 		personagem.isMoving = false
 		posicaoFinal = posicaoAtual
-		deslocamento = math.abs(posicaoFinal - posicaoInicial + 8)
-		deslocamento_text.text = "Deslocamento: " .. deslocamento .. " m"
+		deslocamento = math.abs(posicaoFinal - posicaoInicial)*1.09
+		deslocamento_text.text = "Deslocamento: " .. math.floor(deslocamento) .. " m"
 		posicaoInicial = posicaoFinal
 		personagem:pause()
 	end
@@ -100,8 +100,8 @@ local function onSetaEsquerdaTouch(event)
 		-- Para de mover o personagem
 		personagem.isMoving = false
 		posicaoFinal = posicaoAtual
-		deslocamento = math.abs(posicaoFinal - posicaoInicial - 8)
-		deslocamento_text.text = "Deslocamento: " .. deslocamento .. " m"
+		deslocamento = math.abs(posicaoFinal - posicaoInicial)*1.09
+		deslocamento_text.text = "Deslocamento: " .. math.floor(deslocamento) .. " m"
 		posicaoInicial = posicaoFinal
 		personagem:pause()
 	end
