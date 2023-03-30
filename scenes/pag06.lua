@@ -57,13 +57,13 @@ local function onCarTouch(event)
 		end
 	elseif event.phase == "began" then
     -- inicializar a posição e o tempo anterior
-    posicao_anterior = carro.x/50
+    posicao_anterior = 0
     tempo_anterior = event.time
 		tempoInicial = event.time
 		tempoFinal = 0
-		posicaoInicial = carro.x/50
+		posicaoInicial = 0
 		posicaoFinal  = 0
-	elseif event.phase == "ended" then
+	elseif event.phase == "ended" or event.phase == "cancelled" then
 		-- calcular velocidade média
 		tempoFinal = event.time
 		local tempoTotal = (tempoFinal - tempoInicial)/1000
@@ -71,6 +71,7 @@ local function onCarTouch(event)
 		print("posicaoFinal: " .. posicaoFinal)
 		print("posicaoInicial: " .. posicaoInicial)
 		local velocidadeMedia = (posicaoFinal - posicaoInicial) / tempoTotal
+		print("velocidadeMedia: " .. velocidadeMedia)
 		velocidade_text2.text = "Velocidade média: " .. string.format("%.2f", math.abs(velocidadeMedia)) .. " m/s"
 	end
 end
