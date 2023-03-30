@@ -13,7 +13,7 @@ physics.start()
 physics.setGravity( 0, 9.8 )
 
 -- forward declarations and other locals
-local background, buttomLeft, buttomRight, text, rect1, estrada, carro, restart, personagem, carroMovimento, personagemMovimento, ended
+local background, buttomLeft, buttomRight, text, rect1, estrada, carro, restart, personagem, carroMovimento, personagemMovimento, ended, semaforo
 
 local velocidade = 5000
 
@@ -70,12 +70,12 @@ local function onPersonagemTap()
 end
 
 local function onRestartTap()
-	transition.to(carro, {x = display.contentWidth/8, time = velocidade/2})
-	transition.to(personagem, {x = display.contentWidth/8, time = velocidade/2})
-	transition.to(movimentoPersonagem, {x = display.contentWidth/8 - 20, time = velocidade/2})
-	transition.to(movimentoCarro, {x = display.contentWidth/8 + 10, time = velocidade/2})
-	transition.to(repousoPersonagem, {x = display.contentWidth/8 - 20, time = velocidade/2})
-	transition.to(repousoCarro, {x = display.contentWidth/8 + 10, time = velocidade/2})
+	transition.to(carro, {x = display.contentWidth/8, time = velocidade/10})
+	transition.to(personagem, {x = display.contentWidth/8, time = velocidade/10})
+	transition.to(movimentoPersonagem, {x = display.contentWidth/8 - 20, time = velocidade/10})
+	transition.to(movimentoCarro, {x = display.contentWidth/8 + 10, time = velocidade/10})
+	transition.to(repousoPersonagem, {x = display.contentWidth/8 - 20, time = velocidade/10})
+	transition.to(repousoCarro, {x = display.contentWidth/8 + 10, time = velocidade/10})
 	restart.alpha = 0
 	ended = false
 end
@@ -124,7 +124,7 @@ function scene:create( event )
 	buttomLeft.anchorY = 0
 	buttomLeft.x, buttomLeft.y = display.contentWidth/20,  (display.contentHeight - display.contentHeight/6)
 
-  text = display.newImageRect( "images/texto-pag-03.png", display.contentWidth - display.contentWidth/4, display.contentHeight - display.contentHeight/4 )
+  text = display.newImageRect( "images/texto-pag-03-1.png", display.contentWidth - display.contentWidth/4, display.contentHeight - display.contentHeight/4 )
   text.anchorX = 0
   text.anchorY = 0
   text.x, text.y = display.contentWidth/8, 50
@@ -187,6 +187,11 @@ function scene:create( event )
 	repousoPersonagem.anchorY = 0
 	repousoPersonagem.alpha = 1
 	repousoPersonagem.x, repousoPersonagem.y = display.contentWidth/8 - 20,  (display.contentHeight/4.8)
+	
+	semaforo = display.newImageRect( "images/semaforo.png", 150, 150 )
+	semaforo.anchorX = 0
+	semaforo.anchorY = 0
+	semaforo.x, semaforo.y = estrada.x + estrada.width - semaforo.width/1.5,   estrada.y - estrada.height + 10
 
   sceneGroup:insert( background )
 	sceneGroup:insert( buttomRight )
@@ -197,6 +202,7 @@ function scene:create( event )
 	sceneGroup:insert( rect1 )
 	sceneGroup:insert( restart )
 	sceneGroup:insert( rect2 )
+	sceneGroup:insert( semaforo )
 	sceneGroup:insert( personagem )
 	sceneGroup:insert( movimentoCarro )
 	sceneGroup:insert( movimentoPersonagem )
