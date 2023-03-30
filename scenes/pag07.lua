@@ -208,12 +208,10 @@ function scene:show( event )
 		physics.addBody( lado02, "static" )
 		physics.addBody( lado02, "static", { isSensor = true })
 
-		timer.performWithDelay( 1000, function() 
-			bola:setLinearVelocity( 10, 0 )
-			velocidadeInicial = 10
-			velocidadeFinal = 0
-			tempoInicial = system.getTimer()/1000
-		end, 1 )
+		bola:setLinearVelocity( 10, 0 )
+		velocidadeInicial = 10
+		velocidadeFinal = 0
+		tempoInicial = system.getTimer()/1000
 		
 
 		Runtime:addEventListener( "accelerometer", onAccelerate )
