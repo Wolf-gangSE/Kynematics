@@ -51,14 +51,22 @@ local function onComecarBtnTouch( event )
 				print(" tempo decorrido: " .. tempo_decorrido)
 				local deslocamento_decorrido = (velocidade_atual * tempo_decorrido) + ((aceleracao * tempo_decorrido^2) / 2)
 				carro.x = posicao_inicial + deslocamento_parcial + deslocamento_decorrido
-
-				if deslocamento_parcial + deslocamento_decorrido < deslocamento_total then
-						print(" ainda não chegou no final ")
-						timer.performWithDelay(50, moverCarro)
+				if reiniciar then
+						print(" reiniciar o movimento do carro ")
+						reiniciar = false
+						carro.x = 0
+						return
+				
 				else
-						print(" chegou no final ")
-						carro.x = posicao_final
-						deslocamento.text = "Deslocamento: " .. string.format("%.2f", posicao_final) .. " m"
+					if deslocamento_parcial + deslocamento_decorrido < deslocamento_total then
+							print(" ainda não chegou no final ")
+							deslocamento.text = "Deslocamento: " .. string.format("%.2f", deslocamento_parcial + deslocamento_decorrido) .. " m"
+							timer.performWithDelay(50, moverCarro)
+					else
+							print(" chegou no final ")
+							carro.x = posicao_final
+							deslocamento.text = "Deslocamento: " .. string.format("%.2f", posicao_final) .. " m"
+					end
 				end
 		end
 
@@ -84,16 +92,14 @@ end
 local function onReiniciarBtnTouch( event )
 	if event.phase == "ended" or event.phase == "cancelled" then
 		reiniciar = true
-
 		-- Reiniciar a posição do carro
 		carro.x = 0
-
+								
 		-- Reiniciar o texto do deslocamento
 		deslocamento.text = "Deslocamento: 0 m"
 
 		-- Reinciar posição inicial
 		posicao_inicial = 0
-
 		return true
 	end
 end
