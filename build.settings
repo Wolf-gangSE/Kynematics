@@ -20,7 +20,6 @@ settings =
 	{
 		usesPermissions =
 		{
-			"android.permission.INTERNET",
 			"android.permission.RECORD_AUDIO",
 		},
 	},
