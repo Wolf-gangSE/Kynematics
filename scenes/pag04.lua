@@ -221,6 +221,7 @@ function scene:hide( event )
 		-- Called immediately after scene goes off screen.
 		if isRecording then
 			audioCapture:stopRecording()
+			gravando.text = "Toque para gravar"
 		end
 		
 		transition.cancel( baloes )

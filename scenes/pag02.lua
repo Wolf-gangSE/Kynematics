@@ -6,19 +6,13 @@
 
 local composer = require( "composer" )
 local physics = require( "physics" )
-local media = require("media")
-local audio = require("audio")
 local scene = composer.newScene()
 
 physics.start()
-physics.setGravity( 0, 9.8 )
 
 -- forward declarations and other locals
-local background, buttomLeft, buttomRight, text, plataforma01, plataforma02, plataforma03, lado01, lado02, bola, bolaOrientation, audioCapture, audioRecorded, recordAudioTimer, detectSoundIntensityTimer
+local background, buttomLeft, buttomRight, text, plataforma01, plataforma02, plataforma03, lado01, lado02, bola, ended, restart, start
 
---local recordPath = system.pathForFile( "newRecording.wav", system.TemporaryDirectory )
-
-local i = 0
 
 local function onButtomLeftTouch( self, event )
 	if event.phase == "ended" or event.phase == "cancelled" then
@@ -43,7 +37,6 @@ local function onCollision(event)
   if event.phase == "began" and event.other == lado01 then
     -- bola colidiu com o lado01
     print("Colisão com lado01")
-    bolaOrientation = "right"
   elseif event.phase == "began" and event.other == lado02 then
     -- bola colidiu com o lado02
     print("Colisão com lado02")
@@ -52,20 +45,12 @@ local function onCollision(event)
     -- bola colidiu com a linha de chegada
     print("Colisão com linha de chegada")
     bola:setLinearVelocity( 0, 0 )
-  end
-end
-
-local function onGyroscopeUpdate( event )
-  -- Usar os valores do sensor do giroscópio para alterar a velocidade da bola
-  local x = event.yRotation * event.deltaTime
-  local y = event.xRotation * event.deltaTime
-  if bola then
-    bola:setLinearVelocity( x * 100, y * 100 )
+    ended = true
   end
 end
 
 local function onAccelerometerUpdate( event )
-  if bola then
+  if bola and bola.getLinearVelocity then
     local vx, vy = bola:getLinearVelocity()
     local xGravity = event.xGravity
     local yGravity = event.yGravity
@@ -178,6 +163,7 @@ function scene:show( event )
 		-- INSERT code here to make the scene come alive.
 		-- e.g. start timers, begin animation, play audio, etc.
     bola.x, bola.y = display.contentWidth/6, display.contentHeight/4.2
+    ended = false
 
     physics.addBody( plataforma01, "static")
     physics.addBody( plataforma02, "static" )
@@ -215,7 +201,9 @@ function scene:show( event )
 
     if system.hasEventSource( "accelerometer" ) then
       print( "Accelerometer is supported on this platform.")
+
       Runtime:addEventListener( "accelerometer", onAccelerometerUpdate )
+      
     else
       print( "Accelerometer is not supported on this platform.")
 
@@ -232,6 +220,8 @@ function scene:hide( event )
   if event.phase == "will" then
     background:removeEventListener( "touch", buttomLeft )
     background:removeEventListener( "touch", buttomRight )
+    Runtime:removeEventListener( "accelerometer", onAccelerometerUpdate )
+    bola:removeEventListener( "collision", onCollision )
 
     physics.removeBody( bola )
     physics.removeBody( plataforma01 )
@@ -243,9 +233,6 @@ function scene:hide( event )
     physics.removeBody( lado02 )
     physics.removeBody( linhaChegada )
 
-    bola:removeEventListener( "collision", onCollision )
-    Runtime:removeEventListener( "gyroscope", onGyroscopeUpdate )
-    Runtime:removeEventListener( "accelerometer", onAccelerometerUpdate )
 
 
   elseif phase == "did" then
